@@ -9,17 +9,40 @@
 #include <essentia/scheduler/network.h>
 #include <essentia/streaming/algorithms/vectoroutput.h>
 #include <essentia/streaming/algorithms/devnull.h>
+#include <chrono>
 using namespace std;
 using namespace essentia;
 using namespace essentia::streaming;
 using namespace essentia::scheduler;
 
+#define ENDTIME 60.0
+#define SAMPLE_RATE 11025 //44100
+#define SpectralPeaksMaxFrequency 500.0 //5000.0
+#define SpectralPeaksMaxPeaks 30 //10000
+#define SpectralPeaksMagnitudeThreshold 1e-3 //1e-5
+#define WINDOW_TYPE "blackmanharris62" //blackmanharris62
+#define FRAMESIZE 4096 //4096
+#define HOPSIZE 4096 //2048
+#define HPCP_SIZE 24 //36
+#define HPCP_WINDOWSIZE 1.0/1.0 //4./3.
+#define KEY_numHarmonics 1 //4
+#define KEY_usePolyphony false //true
+#define KEY_useThreeChords false //true
+#define Key_pcpSize HPCP_SIZE //36
+//#define USE_TUNING_FREQUENCY
+//#define USE_REPLAY_GAIN 
+
+
 Real ReplayGain(const string& filename) {
+#ifndef USE_REPLAY_GAIN
+  return 0;
+#else
   streaming::AlgorithmFactory& factory = streaming::AlgorithmFactory::instance();
 
   Algorithm* audio       = factory.create("EqloudLoader",
                                           "filename", filename,
-                                          "sampleRate", 44100,
+                                          "sampleRate", SAMPLE_RATE,
+                                          "endTime", ENDTIME,
                                           "downmix", "mix");
 
   Algorithm* replay_gain = factory.create("ReplayGain", "applyEqloud", false);
@@ -33,18 +56,24 @@ Real ReplayGain(const string& filename) {
   Network(audio).run();
 
   return replayGainValues.empty() ? 0.0 : replayGainValues.back();
+#endif
 }
 
 Real TuningFrequency(const string& filename,
                      int framesize, int hopsize, int zeropadding,
                      Real rgain) {
+#ifndef USE_TUNING_FREQUENCY
+  return 440;
+#else
   streaming::AlgorithmFactory& factory = streaming::AlgorithmFactory::instance();
 
   Algorithm* audio         = factory.create("EasyLoader",
                                             "filename", filename,
-                                            "sampleRate", 44100,
+                                            "sampleRate", SAMPLE_RATE,
+#ifdef USE_REPLAY_GAIN
                                             "replayGain", rgain,
-                                            "endTime", 60.0,
+#endif
+                                            "endTime", ENDTIME,
                                             "downmix", "mix");
 
   Algorithm* frameCutter   = factory.create("FrameCutter",
@@ -54,17 +83,17 @@ Real TuningFrequency(const string& filename,
                                             "startFromZero", false);
 
   Algorithm* window        = factory.create("Windowing", 
-                                            "type", "blackmanharris62",
+                                            "type", WINDOW_TYPE,
                                             "zeroPadding", zeropadding);
 
   Algorithm* spectrum      = factory.create("Spectrum");
 
   Algorithm* spectralPeaks = factory.create("SpectralPeaks",
-                                            "sampleRate", 44100,
-                                            "maxPeaks", 10000,
-                                            "maxFrequency", 5000.,
+                                            "sampleRate", SAMPLE_RATE,
+                                            "maxPeaks", SpectralPeaksMaxPeaks,
+                                            "maxFrequency", SpectralPeaksMaxFrequency,
                                             "minFrequency", 40.,
-                                            "magnitudeThreshold", 0.00001,
+                                            "magnitudeThreshold", SpectralPeaksMagnitudeThreshold,
                                             "orderBy", "magnitude");
 
   Algorithm* tuningFreq    = factory.create("TuningFrequency", "resolution", 1.0);
@@ -85,7 +114,8 @@ Real TuningFrequency(const string& filename,
 
   Network(audio).run();
 
-  return tuningFrequencyValues.empty() ? 0.0 : mean(tuningFrequencyValues);
+  return tuningFrequencyValues.empty() ? 440 : mean(tuningFrequencyValues);
+#endif
 }
 
 struct KeyResult {
@@ -102,9 +132,11 @@ KeyResult TonalDescriptors(const string& filename,
 
   Algorithm* audio         = factory.create("EasyLoader",
                                             "filename", filename,
-                                            "sampleRate", 44100,
+                                            "sampleRate", SAMPLE_RATE,
+#ifdef USE_REPLAY_GAIN
                                             "replayGain", rgain,
-                                            "endTime", 60.0,
+#endif
+                                            "endTime", ENDTIME,
                                             "downmix", "mix");
 
   Algorithm* frameCutter   = factory.create("FrameCutter",
@@ -114,37 +146,37 @@ KeyResult TonalDescriptors(const string& filename,
                                             "startFromZero", false);
 
   Algorithm* window        = factory.create("Windowing", 
-                                            "type", "blackmanharris62",
+                                            "type", WINDOW_TYPE,
                                             "zeroPadding", zeropadding);
 
   Algorithm* spectrum      = factory.create("Spectrum");
 
   Algorithm* spectralPeaks = factory.create("SpectralPeaks",
-                                            "sampleRate", 44100,
-                                            "maxPeaks", 10000,
-                                            "maxFrequency", 5000,
+                                            "sampleRate", SAMPLE_RATE,
+                                            "maxPeaks", SpectralPeaksMaxPeaks,
+                                            "maxFrequency", SpectralPeaksMaxFrequency,
                                             "minFrequency", 40,
-                                            "magnitudeThreshold", 0.00001,
+                                            "magnitudeThreshold", SpectralPeaksMagnitudeThreshold,
                                             "orderBy", "frequency");
 
   Algorithm* key           = factory.create("Key",
-                                            "numHarmonics", 4,
-                                            "pcpSize", 36,
+                                            "numHarmonics", KEY_numHarmonics,
+                                            "pcpSize", Key_pcpSize,
                                             "profileType", "temperley",
                                             "slope", 0.6,
-                                            "usePolyphony", true,
-                                            "useThreeChords", true);
+                                            "usePolyphony", KEY_usePolyphony,
+                                            "useThreeChords", KEY_useThreeChords);
 
   Algorithm* hpcp          = factory.create("HPCP",
-                                            "size", 36,
+                                            "size", HPCP_SIZE,
                                             "referenceFrequency", tuningFrequency,
                                             "bandPreset", false,
                                             "minFrequency", 40.,
                                             "maxFrequency", 5000.,
                                             "weightType", "squaredCosine",
                                             "nonLinear", false,
-                                            "windowSize", 4./3.,
-                                            "sampleRate", 44100);
+                                            "windowSize", HPCP_WINDOWSIZE,
+                                            "sampleRate", SAMPLE_RATE);
 
   // make connectinons:
   audio->output("audio")                >>  frameCutter->input("signal");
@@ -208,26 +240,29 @@ int main(int argc, char* argv[]) {
   string filename = t2u8(argv[1]);
 
   // Parameters
-  uint framesize = 4096;
-  uint hopsize = 2048;
+  uint framesize = FRAMESIZE;
+  uint hopsize = HOPSIZE;
   uint zeropadding = 0;
 
-  essentia::init();
+  auto start = chrono::high_resolution_clock::now();
 
+  essentia::init();
   // Compute replay gain
   Real rgain = ReplayGain(filename);
+  cout << "replay gain: " << rgain << endl;
 
   // Compute tuning frequency
   Real tuningFrequency = TuningFrequency(filename, framesize, hopsize, zeropadding, rgain);
-  cout << "tuning frequency:\t" << tuningFrequency << endl;
+  cout << "tuning frequency: " << tuningFrequency << endl;
 
   // Compute key
   KeyResult keyResult = TonalDescriptors(filename, framesize, hopsize, zeropadding,  rgain, tuningFrequency);
   
-  cout << "key:" << "\t" << keyResult.key 
-       << "  " << keyResult.scale << endl;
+  cout << "*key: " << keyResult.key << ";" << keyResult.scale << endl;
 
   essentia::shutdown();
-
+  auto end = chrono::high_resolution_clock::now();
+  auto duration = chrono::duration_cast<chrono::seconds>(end - start);
+  cout << "compute duration: " << duration.count() << "s" << endl;
   return 0;
 }
