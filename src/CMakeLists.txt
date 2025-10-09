@@ -1,4 +1,9 @@
-add_library(essentia)
+if(BUILD_SHARED_ESSENTIA)
+  add_library(essentia SHARED)
+else()
+  add_library(essentia)
+endif()
+
 add_library(Essentia::essentia ALIAS essentia)
 
 if (MSVC)
@@ -118,7 +123,7 @@ add_subdirectory(algorithms)
 add_subdirectory(3rdparty)
 
 
-if(BUILD_EXAMPLES)
+if(BUILD_EXAMPLES OR BUILD_MY_EXAMPLES)
   add_subdirectory(examples)
 endif()
 

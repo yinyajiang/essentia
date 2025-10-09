@@ -1,0 +1,21 @@
+v1
+
+C:\vcpkg\vcpkg.exe install eigen3 pkgconf --triplet x64-windows
+
+$env:VCPKG_ROOT="C:\vcpkg"
+$env:PKG_CONFIG_PATH="$env:VCPKG_ROOT\installed\x64-windows\lib\pkgconfig"
+$env:PATH="$env:VCPKG_ROOT\installed\x64-windows\tools\pkgconf;$env:PATH"
+
+set "VCPKG_ROOT=F:\vcpkg\vcpkg"
+set "PKG_CONFIG_PATH=%VCPKG_ROOT%\installed\x64-windows\lib\pkgconfig"
+set "PATH=%VCPKG_ROOT%\installed\x64-windows\tools\pkgconf;%PATH%"
+
+python waf configure --mode=release --fft=FFTW
+python waf
+
+
+v2
+.\packaging\build-dependencies-msvc.bat
+set PATH=%PATH%;F:\GitHub\essentia2\essentia\packaging\msvc\bin
+cmake -B build -DCMAKE_PREFIX_PATH=F:\GitHub\essentia2\essentia\packaging\msvc
+cmake --build build --config release
