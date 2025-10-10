@@ -1,4 +1,4 @@
-if(BUILD_SHARED_ESSENTIA)
+if(BUILD_SHARED_LIBS)
   add_library(essentia SHARED)
 else()
   add_library(essentia)
