@@ -24,6 +24,7 @@ essentia_check_set(BUILD_MY_EXAMPLES)
 
 if(BUILD_MY_EXAMPLES)
   essentia_add_my_example(find_key)
+  essentia_add_my_example(find_key2)
 endif()
 
 set(ESSENTIA_EXAMPLES_standard
