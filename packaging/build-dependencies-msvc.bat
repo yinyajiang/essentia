@@ -35,7 +35,7 @@ cd "msvc"
 
 :: Default build options
 set INSTALL_PREFIX=
-set BUILD_TYPE=Debug
+set BUILD_TYPE=Release
 set SHARED_LIBS=YES
 set WITH_GAIA=NO
 set WITH_TENSORFLOW=NO
@@ -100,7 +100,7 @@ for %%A in (Debug Release RelWithDebInfo MinSizeRel) do (
   if %BUILD_TYPE%==%%A (goto valid)
 )
 
-echo Invalid build type: %BUILD_TYPE%. Using default (Debug)
+echo Invalid build type: %BUILD_TYPE%. Using default (Release)
 set BUILD_TYPE=Debug
 
 :valid

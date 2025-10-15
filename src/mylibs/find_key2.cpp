@@ -233,7 +233,7 @@ int main(int argc, char* argv[]) {
 
   if (argc != 2) {
     cout << "Error: wrong number of arguments" << endl;
-    cout << "Usage: " << argv[0] << " input_audiofile" << endl;  
+    cout << "Usage: " << t2u8(argv[0]) << " input_audiofile" << endl;  
     exit(1);
   }
 

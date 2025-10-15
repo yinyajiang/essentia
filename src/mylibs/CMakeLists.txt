@@ -1,0 +1,30 @@
+
+function(essentia_add_my_exe example)
+  if(BUILD_MY_LIBS EQUAL 1 OR example IN_LIST BUILD_MY_LIBS)
+    add_executable(${example} "${example}.cpp")
+    target_link_libraries(${example} PRIVATE essentia)
+    if(BUILD_SHARED_LIBS)
+      target_compile_definitions(${example} PUBLIC ESSENTIA_EXPORTS=0)
+    endif()
+  endif()
+endfunction()
+
+function(essentia_add_my_lib example)
+  if(BUILD_MY_LIBS EQUAL 1 OR example IN_LIST BUILD_MY_LIBS)
+    add_library(${example} SHARED "${example}.cpp" "${example}.h")
+    target_link_libraries(${example} PRIVATE essentia)
+    target_compile_definitions(${example} PUBLIC EXPORTS_ESSENTIAUTILS=1)
+    if(BUILD_SHARED_LIBS)
+      target_compile_definitions(${example} PUBLIC ESSENTIA_EXPORTS=0)
+    endif()
+  endif()
+endfunction()
+
+
+essentia_check_set(BUILD_MY_LIBS)
+
+if(BUILD_MY_LIBS)
+  #essentia_add_my_exe(find_key)
+  #essentia_add_my_exe(find_key2)
+  essentia_add_my_lib(essentiautils)
+endif()

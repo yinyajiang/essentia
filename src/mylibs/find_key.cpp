@@ -72,23 +72,28 @@ KeyResult KeyExtract(const string& filename) {
 }
 
 
-Real bpmExtract(const string& filename) {
-  streaming::AlgorithmFactory& factory = streaming::AlgorithmFactory::instance();
+// Real bpmExtract(const string& filename) {
+//   streaming::AlgorithmFactory& factory = streaming::AlgorithmFactory::instance();
 
-  Algorithm* audio         = factory.create("EasyLoader",
-                                            "filename", filename,
-                                            "sampleRate", SAMPLE_RATE,
-                                            "endTime", ENDTIME,
-                                            "downmix", "mix");
-  // Loop BPM estimation
-  Algorithm* percivalBPM = factory.create("PercivalBpmEstimator");
-  audio->output("audio") >> percivalBPM->input("signal");
+//   Algorithm* audio         = factory.create("EasyLoader",
+//                                             "filename", filename,
+//                                             "sampleRate", SAMPLE_RATE,
+//                                             "endTime", ENDTIME,
+//                                             "downmix", "mix");
+//   // Loop BPM estimation
+//   Algorithm* percivalBPM = factory.create("PercivalBpmEstimator",
+    
 
-  Network(audio).run();
-  std::vector<Real> bpmOut;
-  percivalBPM->output("bpm") >> bpmOut;
-  return bpmOut.empty() ? 0.0 : bpmOut.back();
-}
+  
+//   );
+
+//   audio->output("audio") >> percivalBPM->input("signal");
+
+//   Network(audio).run();
+//   std::vector<Real> bpmOut;
+//   percivalBPM->output("bpm") >> bpmOut;
+//   return bpmOut.empty() ? 0.0 : bpmOut.back();
+// }
 
 
 #if defined(_WIN32) || defined(WIN32)
@@ -120,7 +125,7 @@ int main(int argc, char* argv[]) {
 
   if (argc != 2) {
     cout << "Error: wrong number of arguments" << endl;
-    cout << "Usage: " << argv[0] << " input_audiofile" << endl;  
+    cout << "Usage: " << t2u8(argv[0]) << " input_audiofile" << endl;  
     exit(1);
   }
 

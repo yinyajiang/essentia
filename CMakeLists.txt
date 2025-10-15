@@ -7,7 +7,7 @@ project(essentia VERSION 2.1.0
 file(STRINGS "VERSION" essentia_VERSION_STRING)
 
 set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -19,7 +19,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/EssentiaUtilities.cmake)
 
 option(BUILD_TESTS "Build tests" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
-option(BUILD_MY_EXAMPLES "Build my examples" ON)
+option(BUILD_MY_LIBS "Build my libraries" ON)
 option(BUILD_SHARED_LIBS "Build shared essentia library" ON)
 option(BUILD_PYTHON_BINDINGS "Build Python bindings" OFF)
 option(BUILD_VAMP_PLUGIN "Build VAMP plugin" OFF)

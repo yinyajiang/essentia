@@ -123,8 +123,12 @@ add_subdirectory(algorithms)
 add_subdirectory(3rdparty)
 
 
-if(BUILD_EXAMPLES OR BUILD_MY_EXAMPLES)
+if(BUILD_EXAMPLES)
   add_subdirectory(examples)
+endif()
+
+if(BUILD_MY_LIBS)
+  add_subdirectory(mylibs)
 endif()
 
 if(BUILD_PYTHON_BINDINGS)
