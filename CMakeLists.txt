@@ -40,9 +40,11 @@ option(STRIP_DOCUMENTATION "Strip documentation from binaries" OFF)
 mark_as_advanced(DEBUGGING_ENABLED STRIP_DOCUMENTATION)
 
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+
 if (USE_FFMPEG)
   find_package(FFmpeg)
 endif()
+
 if (USE_SAMPLERATE)
   find_package(SampleRate QUIET)
 endif()
@@ -99,6 +101,7 @@ else()
 
   if(TARGET FFTW3::fftw3f)
     set(ESSENTIA_USE_FFTW ON)
+    message(STATUS "Found FFTW3::fftw3f")
   elseif(APPLE AND ACCELERATE_LIBRARIES)
     set(ESSENTIA_USE_VDSP ON)
   else()
