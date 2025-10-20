@@ -11,6 +11,7 @@
 #include <chrono>
 #include "essentiautils.h"
 #include <cstring>
+#include <atomic>
 
 using namespace std;
 using namespace essentia;
@@ -20,13 +21,19 @@ using namespace essentia::scheduler;
 #define ENDTIME 60.0
 #define SAMPLE_RATE 16000
 
+static std::atomic<int> essentia_initialized(0);
+
 
 EssentiaUtils::EssentiaUtils() {
-  essentia::init();
+  if (essentia_initialized.fetch_add(1) == 0) {
+    essentia::init();
+  }
 }
 
 EssentiaUtils::~EssentiaUtils() {
-  essentia::shutdown();
+  if (essentia_initialized.fetch_sub(1) == 1) {
+    essentia::shutdown();
+  }
 }
 
 
@@ -141,6 +148,63 @@ bool EssentiaUtils::findKey(const uint8_t* f32data, size_t sizeBytes, size_t sam
   return true;
 }
 
+float EssentiaUtils::findbpm(const uint8_t *f32data, size_t sizeBytes, size_t sampleRate) {
+  float bpm = 0.0;
+  int offset = 1024;
+  int maxCount = 10;
+  int cnt = 0;
+  while (bpm < 50 && cnt < maxCount) {
+    bpm = _findbpm(f32data, sizeBytes, sampleRate, offset);
+    offset += 1024;
+    cnt++;
+  }
+  return bpm;
+}
+
+
+float EssentiaUtils::_findbpm(const uint8_t *f32data, size_t sizeBytes, size_t sampleRate, int offset) {
+  const size_t numSamples = sizeBytes / sizeof(float);
+  const float* f32 = reinterpret_cast<const float*>(f32data);
+  std::vector<Real> audio(numSamples);
+  for (size_t i = 0; i < numSamples; ++i) {
+    audio[i] = static_cast<Real>(f32[i]);
+  }
+
+  essentia::standard::AlgorithmFactory& factory = essentia::standard::AlgorithmFactory::instance();
+
+  if (sampleRate != SAMPLE_RATE) {
+    essentia::standard::Algorithm* resample = factory.create("Resample",
+      "inputSampleRate", static_cast<Real>(sampleRate),
+      "outputSampleRate", static_cast<Real>(SAMPLE_RATE),
+      "quality", 1   // 0=最佳质量, 4=最快。1 通常够用
+    );
+
+    std::vector<Real> audioResampled;
+    resample->input("signal").set(audio);
+    resample->output("signal").set(audioResampled);
+    resample->compute();
+    delete resample;
+    audio = audioResampled;
+  }
+
+
+  // Compute key
+  essentia::standard::Algorithm* key = factory.create("PercivalBpmEstimator",
+    "frameSize", offset,
+    "frameSizeOSS", 2 * offset, 
+    "hopSize", 128,
+    "hopSizeOSS", 128,
+    "maxBPM", 210,
+    "minBPM", 50,
+    "sampleRate", SAMPLE_RATE
+  );
+
+  Real outBpm;
+  key->input("audio").set(audio);
+  key->output("bpmEstimate").set(outBpm);
+  key->compute();
+  return float(outBpm);
+}
 
 
 
