@@ -31,9 +31,9 @@ EssentiaUtils::EssentiaUtils() {
 }
 
 EssentiaUtils::~EssentiaUtils() {
-  if (essentia_initialized.fetch_sub(1) == 1) {
-    essentia::shutdown();
-  }
+  // if (essentia_initialized.fetch_sub(1) == 1) {
+  //   essentia::shutdown();
+  // }
 }
 
 
@@ -200,8 +200,8 @@ float EssentiaUtils::_findbpm(const uint8_t *f32data, size_t sizeBytes, size_t s
   );
 
   Real outBpm;
-  key->input("audio").set(audio);
-  key->output("bpmEstimate").set(outBpm);
+  key->input("signal").set(audio);
+  key->output("bpm").set(outBpm);
   key->compute();
   return float(outBpm);
 }
