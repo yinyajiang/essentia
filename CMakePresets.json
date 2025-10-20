@@ -1,0 +1,41 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "macOS-Debug",
+      "binaryDir": "build-preset",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "FFTW3f_DIR": "/Volumes/extern-usb/github/essentia/packaging/macos/fftw3f/lib/cmake/fftw3f",
+        "Eigen3_DIR": "/Volumes/extern-usb/github/essentia/packaging/macos/eigen3/share/eigen3/cmake/Eigen3",
+        "SampleRate_DIR": "/Volumes/extern-usb/github/essentia/packaging/macos/libsamplerate/lib/cmake/SampleRate"
+      },
+      "environment": {
+        "PKG_CONFIG_PATH": "/Volumes/extern-usb/MMProject/vocalremover/sondkits/3rd/ffmpeg-mac/lib/pkgconfig"
+      }
+    },
+    {
+      "name": "macOS-Release",
+      "binaryDir": "build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/installed",
+        "FFTW3f_DIR": "/Volumes/extern-usb/github/essentia/packaging/macos/fftw3f/lib/cmake/fftw3f",
+        "Eigen3_DIR": "/Volumes/extern-usb/github/essentia/packaging/macos/eigen3/share/eigen3/cmake/Eigen3",
+        "SampleRate_DIR": "/Volumes/extern-usb/github/essentia/packaging/macos/libsamplerate/lib/cmake/SampleRate"
+      },
+      "environment": {
+        "PKG_CONFIG_PATH": "/Volumes/extern-usb/MMProject/vocalremover/sondkits/3rd/ffmpeg-mac/lib/pkgconfig"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "build-macOS-Release",
+      "configurePreset": "macOS-Release",
+      "targets": [
+        "install"
+      ]
+    }
+  ]
+}

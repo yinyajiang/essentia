@@ -1,11 +1,12 @@
 
 function(essentia_add_my_exe example)
   if(BUILD_MY_LIBS EQUAL 1 OR example IN_LIST BUILD_MY_LIBS)
-    add_executable(${example} "${example}.cpp")
+    add_executable(${example} "${example}.cpp" "essentiautils.h")
     target_link_libraries(${example} PRIVATE essentia)
     if(BUILD_SHARED_LIBS)
       target_compile_definitions(${example} PUBLIC ESSENTIA_EXPORTS=0)
     endif()
+    target_link_libraries(${example} PRIVATE essentiautils)
   endif()
 endfunction()
 
@@ -24,7 +25,6 @@ endfunction()
 essentia_check_set(BUILD_MY_LIBS)
 
 if(BUILD_MY_LIBS)
-  #essentia_add_my_exe(find_key)
-  #essentia_add_my_exe(find_key2)
   essentia_add_my_lib(essentiautils)
+  essentia_add_my_exe(main)
 endif()

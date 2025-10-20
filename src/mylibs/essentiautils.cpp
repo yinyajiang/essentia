@@ -12,14 +12,13 @@
 #include "essentiautils.h"
 #include <cstring>
 #include <atomic>
+#include <cmath>
 
 using namespace std;
 using namespace essentia;
 using namespace essentia::streaming;
 using namespace essentia::scheduler;
 
-#define ENDTIME 60.0
-#define SAMPLE_RATE 16000
 
 static std::atomic<int> essentia_initialized(0);
 
@@ -36,55 +35,46 @@ EssentiaUtils::~EssentiaUtils() {
   // }
 }
 
+bool EssentiaUtils::loadFile(const char *filename, uint8_t *f32data,
+                             size_t *sizeBytes, size_t sampleRate, int duration) {
+    if (!filename || duration <= 0 || sizeBytes == nullptr) {
+      return false;
+    }
 
-bool EssentiaUtils::findKey(const char* filename, char* keybuff, char* scalebuff) {
+    streaming::AlgorithmFactory& factory = streaming::AlgorithmFactory::instance();
 
-  streaming::AlgorithmFactory& factory = streaming::AlgorithmFactory::instance();
+    streaming::Algorithm* audio = factory.create(
+      "EasyLoader",
+      "filename", std::string(filename),
+      "sampleRate", int(sampleRate),
+      "endTime", static_cast<Real>(duration),
+      "downmix", "mix"
+    );
 
-  streaming::Algorithm* audio         = factory.create("EasyLoader",
-                                            "filename", std::string(filename),
-                                            "sampleRate", SAMPLE_RATE,
-                                            "endTime", ENDTIME,
-                                            "downmix", "mix");
+    std::vector<Real> audioBuffer;
+    audio->output("audio") >> audioBuffer;
+    Network(audio).run();
 
-  // Compute key
-  Algorithm* key = factory.create("KeyExtractor",
-    "frameSize", 4096,
-    "hopSize", 4096, 
-    "hpcpSize", 12,
-    "maxFrequency", 3500.0,
-    "maximumSpectralPeaks", 60,
-    "minFrequency",25,
-    "pcpThreshold", 0.2,
-    "profileType", "bgate",
-    "sampleRate", SAMPLE_RATE,
-    "spectralPeaksThreshold", 0.0001,
-    "tuningFrequency",440.0,
-    "weightType","cosine",
-    "windowType","hann"
-  );
-  audio->output("audio") >> key->input("audio");
+    const size_t numSamples  = audioBuffer.size();
+    const size_t bytesNeeded = numSamples * sizeof(float);
 
-  // capture Key outputs directly
-  std::vector<std::string> keyOut;
-  std::vector<std::string> scaleOut;
-  std::vector<Real> strengthOut;
-  key->output("key")                    >>  keyOut;
-  key->output("scale")                  >>  scaleOut;
-  key->output("strength")               >>  strengthOut;
+    if (f32data == nullptr) {
+      *sizeBytes = bytesNeeded;
+      return true;
+    }
 
+    if (*sizeBytes < bytesNeeded) {
+      return false;
+    }
 
-  Network(audio).run();
-  if (keyOut.empty() || scaleOut.empty()) {
-    return false;
-  }
-
-  auto outkey = keyOut.empty() ? std::string() : keyOut.back();
-  auto outscale = scaleOut.empty() ? std::string() : scaleOut.back();
-  memcpy(keybuff, outkey.c_str(), outkey.size()+1);
-  memcpy(scalebuff, outscale.c_str(), outscale.size()+1);
-  return true;
+    float* out = reinterpret_cast<float*>(f32data);
+    for (size_t i = 0; i < numSamples; ++i) {
+      out[i] = static_cast<float>(audioBuffer[i]);
+    }
+    *sizeBytes = numSamples * sizeof(float);
+    return true;
 }
+
 
 
 bool EssentiaUtils::findKey(const uint8_t* f32data, size_t sizeBytes, size_t sampleRate, char* keybuff, char* scalebuff) {
@@ -98,10 +88,10 @@ bool EssentiaUtils::findKey(const uint8_t* f32data, size_t sizeBytes, size_t sam
 
   essentia::standard::AlgorithmFactory& factory = essentia::standard::AlgorithmFactory::instance();
 
-  if (sampleRate != SAMPLE_RATE) {
+  if (sampleRate != 16000) {
     essentia::standard::Algorithm* resample = factory.create("Resample",
       "inputSampleRate", static_cast<Real>(sampleRate),
-      "outputSampleRate", static_cast<Real>(SAMPLE_RATE),
+      "outputSampleRate", static_cast<Real>(16000),
       "quality", 1   // 0=最佳质量, 4=最快。1 通常够用
     );
 
@@ -124,7 +114,7 @@ bool EssentiaUtils::findKey(const uint8_t* f32data, size_t sizeBytes, size_t sam
     "minFrequency",25,
     "pcpThreshold", 0.2,
     "profileType", "bgate",
-    "sampleRate", SAMPLE_RATE,
+    "sampleRate", 16000,
     "spectralPeaksThreshold", 0.0001,
     "tuningFrequency",440.0,
     "weightType","cosine",
@@ -153,12 +143,12 @@ float EssentiaUtils::findbpm(const uint8_t *f32data, size_t sizeBytes, size_t sa
   int offset = 1024;
   int maxCount = 10;
   int cnt = 0;
-  while (bpm < 50 && cnt < maxCount) {
+  while ((bpm < 50 && cnt < maxCount) || cnt < 2) {
     bpm = _findbpm(f32data, sizeBytes, sampleRate, offset);
     offset += 1024;
     cnt++;
   }
-  return bpm;
+  return (float)((int)(bpm+0.5));
 }
 
 
@@ -172,10 +162,10 @@ float EssentiaUtils::_findbpm(const uint8_t *f32data, size_t sizeBytes, size_t s
 
   essentia::standard::AlgorithmFactory& factory = essentia::standard::AlgorithmFactory::instance();
 
-  if (sampleRate != SAMPLE_RATE) {
+  if (sampleRate != 16000) {
     essentia::standard::Algorithm* resample = factory.create("Resample",
       "inputSampleRate", static_cast<Real>(sampleRate),
-      "outputSampleRate", static_cast<Real>(SAMPLE_RATE),
+      "outputSampleRate", static_cast<Real>(16000),
       "quality", 1   // 0=最佳质量, 4=最快。1 通常够用
     );
 
@@ -196,7 +186,7 @@ float EssentiaUtils::_findbpm(const uint8_t *f32data, size_t sizeBytes, size_t s
     "hopSizeOSS", 128,
     "maxBPM", 210,
     "minBPM", 50,
-    "sampleRate", SAMPLE_RATE
+    "sampleRate", 16000
   );
 
   Real outBpm;
