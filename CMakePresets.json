@@ -27,12 +27,32 @@
       "environment": {
         "PKG_CONFIG_PATH": "/Volumes/extern-usb/MMProject/vocalremover/sondkits/3rd/ffmpeg-mac/lib/pkgconfig"
       }
+    },
+    {
+      "name": "windows-Release",
+      "binaryDir": "build",
+      "architecture": "x64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/installed",
+        "CMAKE_PREFIX_PATH": "${sourceDir}/packaging/msvc"
+      },
+      "environment": {
+        "PATH": "${sourceDir}/packaging/msvc/bin"
+      }
     }
   ],
   "buildPresets": [
     {
       "name": "build-macOS-Release",
       "configurePreset": "macOS-Release",
+      "targets": [
+        "install"
+      ]
+    },
+    {
+      "name": "build-windows-Release",
+      "configurePreset": "windows-Release",
       "targets": [
         "install"
       ]
