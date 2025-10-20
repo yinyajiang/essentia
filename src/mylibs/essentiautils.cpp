@@ -140,10 +140,10 @@ bool EssentiaUtils::findKey(const uint8_t* f32data, size_t sizeBytes, size_t sam
 
 float EssentiaUtils::findbpm(const uint8_t *f32data, size_t sizeBytes, size_t sampleRate) {
   float bpm = 0.0;
-  int offset = 1024;
+  int offset = 2048;
   int maxCount = 10;
   int cnt = 0;
-  while ((bpm < 50 && cnt < maxCount) || cnt < 2) {
+  while (bpm < 50 && cnt < maxCount) {
     bpm = _findbpm(f32data, sizeBytes, sampleRate, offset);
     offset += 1024;
     cnt++;
