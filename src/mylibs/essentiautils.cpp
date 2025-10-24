@@ -20,19 +20,20 @@ using namespace essentia::streaming;
 using namespace essentia::scheduler;
 
 
-static std::atomic<int> essentia_initialized(0);
+void EssentiaUtils::init() {
+  essentia::init();
+}
 
+void EssentiaUtils::shutdown() {
+  essentia::shutdown();
+}
 
 EssentiaUtils::EssentiaUtils() {
-  if (essentia_initialized.fetch_add(1) == 0) {
-    essentia::init();
-  }
+  
 }
 
 EssentiaUtils::~EssentiaUtils() {
-  // if (essentia_initialized.fetch_sub(1) == 1) {
-  //   essentia::shutdown();
-  // }
+  
 }
 
 bool EssentiaUtils::loadFile(const char *filename, uint8_t *f32data,

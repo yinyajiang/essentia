@@ -16,6 +16,8 @@ class EXPORTS_ESSENTIAUTILS_API EssentiaUtils {
 public:
     EssentiaUtils();
     ~EssentiaUtils();
+    static void init();
+    static void shutdown();
     bool  loadFile(const char* filename, uint8_t* f32data, size_t* sizeBytes, size_t sampleRate, int duration);
     bool findKey(const uint8_t *f32data, size_t sizeBytes, size_t sampleRate,
                  char *keybuff, char *scalebuff);
