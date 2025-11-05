@@ -1,0 +1,11 @@
+prefix=${pcfiledir}/../..
+exec_prefix=${prefix}
+libdir=${pcfiledir}/..
+includedir=${prefix}/include
+
+Name: FFTW
+Description: fast Fourier transform library
+Version: 3.3.9
+Libs: -L${libdir} -lfftw3f 
+Libs.private: -lm
+Cflags: -I${includedir}
