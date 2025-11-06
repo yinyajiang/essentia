@@ -26,7 +26,7 @@
         "SampleRate_DIR": "${sourceDir}/packaging/macos_arm/libsamplerate/lib/cmake/SampleRate"
       },
       "environment": {
-        "PKG_CONFIG_PATH": "/Volumes/extern-usb/MMProject/vocalremover/sondkits/3rd/ffmpeg-mac/lib/pkgconfig"
+        "PKG_CONFIG_PATH": "/Users/admin/Documents/dev_package/vocalremover/vocalremover/sondkits/3rd/ffmpeg-mac-arm64/lib/pkgconfig"
       }
     },
     {
