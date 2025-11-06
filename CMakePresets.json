@@ -8,7 +8,7 @@
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/installed",
         "CMAKE_OSX_DEPLOYMENT_TARGET": "11.0",
         "FFTW3f_DIR": "${sourceDir}/packaging/macos/fftw3f/lib/cmake/fftw3f",
-        "Eigen3_DIR": "${sourceDir}/packaging/macos/eigen3/share/eigen3/cmake/Eigen3",
+        "Eigen3_DIR": "${sourceDir}/packaging/macos/eigen/share/eigen3/cmake/Eigen3",
         "SampleRate_DIR": "${sourceDir}/packaging/macos/libsamplerate/lib/cmake/SampleRate"
       },
       "environment": {
@@ -22,7 +22,7 @@
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/installed",
         "CMAKE_OSX_DEPLOYMENT_TARGET": "11.0",
         "FFTW3f_DIR": "${sourceDir}/packaging/macos_arm/fftw3f/lib/cmake/fftw3f",
-        "Eigen3_DIR": "${sourceDir}/packaging/macos_arm/eigen3/share/eigen3/cmake/Eigen3",
+        "Eigen3_DIR": "${sourceDir}/packaging/macos_arm/eigen/share/eigen3/cmake/Eigen3",
         "SampleRate_DIR": "${sourceDir}/packaging/macos_arm/libsamplerate/lib/cmake/SampleRate"
       },
       "environment": {
