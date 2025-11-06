@@ -40,6 +40,7 @@ option(STRIP_DOCUMENTATION "Strip documentation from binaries" OFF)
 mark_as_advanced(DEBUGGING_ENABLED STRIP_DOCUMENTATION)
 
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+message(STATUS "Eigen3_DIR: ${Eigen3_DIR}")
 
 if (USE_FFMPEG)
   find_package(FFmpeg)
@@ -47,6 +48,7 @@ endif()
 
 if (USE_SAMPLERATE)
   find_package(SampleRate QUIET)
+  message(STATUS "SampleRate_DIR: ${SampleRate_DIR}")
 endif()
 if (USE_TAGLIB)
   find_package(Taglib QUIET)
@@ -94,6 +96,7 @@ if(USE_KISSFFT)
   set(ESSENTIA_USE_KISSFFT ON)
 else()
   find_package(FFTW3f)
+  message(STATUS "FFTW3f_DIR: ${FFTW3f_DIR}")
 
   if(APPLE)
     find_library(ACCELERATE_LIBRARIES Accelerate)

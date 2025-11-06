@@ -5,8 +5,7 @@
 ####### Expanded from @PACKAGE_INIT@ by configure_package_config_file() #######
 ####### Any changes to this file will be overwritten by the next CMake run ####
 ####### The input file was Eigen3Config.cmake.in                            ########
-
-get_filename_component(PACKAGE_PREFIX_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../" ABSOLUTE)
+get_filename_component (CMAKE_CURRENT_LIST_DIR ${CMAKE_CURRENT_LIST_FILE} PATH)
 
 ####################################################################################
 
@@ -20,9 +19,9 @@ set (EIGEN3_FOUND 1)
 set (EIGEN3_USE_FILE    "${CMAKE_CURRENT_LIST_DIR}/UseEigen3.cmake")
 
 set (EIGEN3_DEFINITIONS  "")
-set (EIGEN3_INCLUDE_DIR  "${PACKAGE_PREFIX_DIR}/include/eigen3")
-set (EIGEN3_INCLUDE_DIRS "${PACKAGE_PREFIX_DIR}/include/eigen3")
-set (EIGEN3_ROOT_DIR     "${PACKAGE_PREFIX_DIR}")
+set (EIGEN3_INCLUDE_DIR  "${CMAKE_CURRENT_LIST_DIR}/../../../include/eigen3")
+set (EIGEN3_INCLUDE_DIRS "${CMAKE_CURRENT_LIST_DIR}/../../../include/eigen3")
+set (EIGEN3_ROOT_DIR     "${CMAKE_CURRENT_LIST_DIR}/../../../")
 
 set (EIGEN3_VERSION_STRING "3.4.1")
 set (EIGEN3_VERSION_MAJOR  "3")
