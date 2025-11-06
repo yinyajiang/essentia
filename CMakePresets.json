@@ -2,25 +2,28 @@
   "version": 3,
   "configurePresets": [
     {
-      "name": "macOS-Debug",
-      "binaryDir": "build-preset",
+      "name": "macOS-preset",
+      "binaryDir": "build",
       "cacheVariables": {
-        "FFTW3f_DIR": "/Volumes/extern-usb/github/essentia/packaging/macos/fftw3f/lib/cmake/fftw3f",
-        "Eigen3_DIR": "/Volumes/extern-usb/github/essentia/packaging/macos/eigen3/share/eigen3/cmake/Eigen3",
-        "SampleRate_DIR": "/Volumes/extern-usb/github/essentia/packaging/macos/libsamplerate/lib/cmake/SampleRate"
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/installed",
+        "CMAKE_OSX_DEPLOYMENT_TARGET": "11.0",
+        "FFTW3f_DIR": "${sourceDir}/packaging/macos/fftw3f/lib/cmake/fftw3f",
+        "Eigen3_DIR": "${sourceDir}/packaging/macos/eigen3/share/eigen3/cmake/Eigen3",
+        "SampleRate_DIR": "${sourceDir}/packaging/macos/libsamplerate/lib/cmake/SampleRate"
       },
       "environment": {
         "PKG_CONFIG_PATH": "/Volumes/extern-usb/MMProject/vocalremover/sondkits/3rd/ffmpeg-mac/lib/pkgconfig"
       }
     },
     {
-      "name": "macOS-preset",
+      "name": "macOS-arm-preset",
       "binaryDir": "build",
       "cacheVariables": {
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/installed",
-        "FFTW3f_DIR": "/Volumes/extern-usb/github/essentia/packaging/macos/fftw3f/lib/cmake/fftw3f",
-        "Eigen3_DIR": "/Volumes/extern-usb/github/essentia/packaging/macos/eigen3/share/eigen3/cmake/Eigen3",
-        "SampleRate_DIR": "/Volumes/extern-usb/github/essentia/packaging/macos/libsamplerate/lib/cmake/SampleRate"
+        "CMAKE_OSX_DEPLOYMENT_TARGET": "11.0",
+        "FFTW3f_DIR": "${sourceDir}/packaging/macos_arm/fftw3f/lib/cmake/fftw3f",
+        "Eigen3_DIR": "${sourceDir}/packaging/macos_arm/eigen3/share/eigen3/cmake/Eigen3",
+        "SampleRate_DIR": "${sourceDir}/packaging/macos_arm/libsamplerate/lib/cmake/SampleRate"
       },
       "environment": {
         "PKG_CONFIG_PATH": "/Volumes/extern-usb/MMProject/vocalremover/sondkits/3rd/ffmpeg-mac/lib/pkgconfig"
@@ -43,6 +46,13 @@
     {
       "name": "build-macOS",
       "configurePreset": "macOS-preset",
+      "targets": [
+        "install"
+      ]
+    },
+    {
+      "name": "build-macOS-arm",
+      "configurePreset": "macOS-arm-preset",
       "targets": [
         "install"
       ]
